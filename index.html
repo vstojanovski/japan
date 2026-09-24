@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Japan">
+<meta name="theme-color" content="#b23a2e" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17140f" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAACAUlEQVR4nO3bwW0CMRBAURZRz+a+1JBmNzWkgHTEHfGJOOC1xHsN2Ja+5mBpln1bT/DI+egLMC9xkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBugw44/v3b8Apn+bn+vXuI0wOkjhI4iCJgyQOkjhI4iCJgyQO0rJv69F3uPf8R3XAz+B4cz7Z5CCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCN2JX910vLtDZvhzE5SOIgiYMkDpI4SOIgiYMkDpI4SFP8kN7tgs65OPpWc377mhwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQVr2bT36DkzK5CCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iDdAO/ZF4AgXlNLAAAAAElFTkSuQmCC">
+<title>Japan 2026</title>
+<style>
+:root { color-scheme: light dark }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent }
+body {
+  font: 17px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #faf8f5; color: #1a1a1a;
+  padding: 0 0 calc(110px + env(safe-area-inset-bottom));
+}
+html { touch-action: manipulation }
+.wrap { max-width: 620px; margin: 0 auto; padding: 18px 18px 0 }
+
+.datebar { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:2px }
+.dow { font-size: 15px; font-weight: 700; letter-spacing:.08em; text-transform:uppercase; color:#b23a2e }
+.date { font-size: 15px; color:#6f6862 }
+select#jump {
+  font:inherit; font-size:15px; color:#6f6862; margin-left:auto; text-align:right;
+  border:none; background:transparent; padding:2px 0; -webkit-appearance:none; appearance:none;
+  max-width:62%; direction:rtl;
+}
+
+h1 { font-size: 27px; line-height:1.2; font-weight: 700; margin: 6px 0 16px; letter-spacing:-.01em }
+
+.anchor { background:#fff3e6; border-left:4px solid #e07b2a; border-radius:0 8px 8px 0; padding:11px 14px; margin-bottom:16px }
+.anchor .lbl { font-size:11px; font-weight:800; letter-spacing:.12em; color:#b35c14; text-transform:uppercase; display:block; margin-bottom:3px }
+.anchor .txt { font-size:16px; font-weight:600 }
+
+ol.plan { list-style:none; counter-reset:s }
+ol.plan li { counter-increment:s; position:relative; padding:12px 0 12px 34px; border-bottom:1px solid #ece7e0; font-size:16.5px }
+ol.plan li:last-child { border-bottom:none }
+ol.plan li::before {
+  content: counter(s); position:absolute; left:0; top:13px;
+  width:22px; height:22px; border-radius:50%; background:#e8e3dc; color:#6b6560;
+  font-size:11.5px; font-weight:700; display:flex; align-items:center; justify-content:center;
+}
+ol.plan li.fix::before { background:#e07b2a; color:#fff }
+ol.plan li.opt::before { background:transparent; border:1.5px dashed #c3bbb0; color:#a8a099 }
+ol.plan li.opt { color:#6f6862 }
+ol.plan li .t { display:inline-block; font-variant-numeric:tabular-nums; font-weight:700; color:#b23a2e; margin-right:7px }
+ol.plan li .n { display:block; font-size:14px; color:#635d57; margin-top:3px }
+
+a.go { color:#14548c; text-decoration:none; border-bottom:1px solid #bcd4e8; padding-bottom:1px }
+a.go:active { background:#e3eef7 }
+li.opt a.go { color:#5c7d99; border-bottom-color:#d3dee7 }
+
+.m { margin-left:6px; font-size:14px; vertical-align:-1px }
+.un { display:inline-block; margin-left:6px; font-size:9.5px; font-weight:800; letter-spacing:.07em;
+  color:#2c6b8f; background:#e4eef5; border-radius:4px; padding:2px 5px; vertical-align:2px }
+.q { display:inline-block; margin-left:6px; font-size:11px; font-weight:800;
+  color:#9c7d3a; background:#f7f0de; border-radius:4px; padding:1px 6px; vertical-align:1px }
+
+.drop { margin-top:16px; font-size:13.5px; color:#635d57 }
+.drop b { color:#4a4540; font-weight:700 }
+.ship { margin-top:14px; padding:11px 14px; background:#eaf2ee; border-left:4px solid #3e8c68; border-radius:0 8px 8px 0; font-size:15px; font-weight:600; color:#215943 }
+.note { margin-top:14px; font-size:14.5px; color:#5a5450; line-height:1.55 }
+.hint { margin-top:20px; font-size:12.5px; color:#77706a; text-align:center; line-height:1.6 }
+.hint b { color:#5a5450 }
+.off { display:none; margin-top:14px; padding:9px 14px; background:#f2efeb; border-radius:8px;
+  font-size:13.5px; color:#635d57; text-align:center }
+body.offline .off { display:block }
+
+nav { position:fixed; bottom:0; left:0; right:0; background:#fffdfb; border-top:1px solid #e4ded6;
+  padding:11px 14px calc(11px + env(safe-area-inset-bottom)); display:flex; gap:9px; max-width:620px; margin:0 auto }
+nav button { touch-action: manipulation; flex:1; font:inherit; font-size:15px; font-weight:600; padding:12px 8px;
+  border:1px solid #ddd6cd; background:#fff; color:#3a3530; border-radius:9px; cursor:pointer }
+nav button:active { background:#f0ebe4 }
+nav button.now { flex:1.5; background:#b23a2e; color:#fff; border-color:#b23a2e }
+nav button:disabled { opacity:.32 }
+
+.tonight { margin-top:18px; padding:12px 14px; background:#fff; border:1px solid #e4ded6; border-radius:10px;
+  display:flex; align-items:center; gap:10px; font-size:15px }
+.tonight .ic { font-size:18px }
+.tonight .lb { font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:#8a8580; display:block }
+.tonight a { color:#14548c; text-decoration:none; font-weight:600 }
+.sos { margin-top:18px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center }
+.sos a { font-size:12.5px; color:#8b2f25; background:#fbecea; border-radius:14px; padding:5px 11px; text-decoration:none; font-weight:600 }
+.pre { text-align:center; padding:36px 0 16px }
+.pre .big { font-size:52px; font-weight:800; letter-spacing:-.03em; color:#b23a2e; line-height:1 }
+.pre .cap { font-size:15px; color:#8a8580; margin-top:6px }
+.tmrw { margin-top:12px; padding:11px 14px; border-radius:10px; background:#f2efeb; font-size:14.5px; color:#4a4540; cursor:pointer }
+.tmrw .lb { font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:#8a8580; display:block; margin-bottom:2px }
+.tmrw b { font-weight:700 }
+.tmrw .lb { display:flex } .pace { margin-left:auto; letter-spacing:.04em }
+.pace.early { color:#b2452c } .pace.easy { color:#3b8a5c }
+
+/* Night mode — follows the iPhone's Light/Dark setting */
+@media (prefers-color-scheme: dark) {
+  body { background:#17140f; color:#ece6de }
+  .dow { color:#f0826f }
+  .date, select#jump { color:#b3a99e }
+  select#jump option { background:#221e19; color:#ece6de }
+  .anchor { background:#3a2716; border-left-color:#e07b2a }
+  .anchor .lbl { color:#f0a760 }
+  ol.plan li { border-bottom-color:#2e2822 }
+  ol.plan li::before { background:#2e2822; color:#b3a99e }
+  ol.plan li.fix::before { background:#c9691f; color:#fff }
+  ol.plan li.opt::before { border-color:#5a5148; color:#8f857a }
+  ol.plan li.opt { color:#a39a90 }
+  ol.plan li .t { color:#f0826f }
+  ol.plan li .n { color:#a89e93 }
+  a.go { color:#8fbde6; border-bottom-color:#35506a }
+  a.go:active { background:#1f2d3a }
+  li.opt a.go { color:#7d9bb5; border-bottom-color:#2c3d4c }
+  .un { color:#9cc8e6; background:#1c3342 }
+  .q { color:#e0c27a; background:#3a3020 }
+  .drop { color:#a89e93 } .drop b { color:#d6cdc3 }
+  .ship { background:#16291f; border-left-color:#3e8c68; color:#9fd6b9 }
+  .note { color:#c2b8ad }
+  .hint { color:#8f857a } .hint b { color:#c2b8ad }
+  .off { background:#221e19; color:#b3a99e }
+  .tonight { background:#221e19; border-color:#3a332b }
+  .tonight .lb, .tmrw .lb { color:#8f857a }
+  .tonight a { color:#8fbde6 }
+  .tmrw { background:#221e19; color:#d6cdc3 }
+  .sos a { color:#f2a79c; background:#3a1d1a }
+  .pace.early { color:#f3a58c } .pace.easy { color:#9fd6b9 }
+  nav { background:#1c1814; border-top-color:#2e2822 }
+  nav button { background:#2a241e; border-color:#3a332b; color:#ece6de }
+  nav button:active { background:#352e26 }
+  nav button.now { background:#b23a2e; border-color:#b23a2e; color:#fff }
+  .pre .big { color:#f0826f } .pre .cap { color:#a89e93 }
+}
+</style>
+</head>
+<body>
+<main class="wrap" id="app"></main>
+<nav>
+  <button id="prev" aria-label="Previous day">‹ Prev</button>
+  <button id="now" class="now" aria-label="Jump to today">Today</button>
+  <button id="next" aria-label="Next day">Next ›</button>
+</nav>
+<script>
+// item = [time, text, note, mapQuery, mode, flags]
+// mode: walk metro train shin bus taxi tram ferry rope air
+// flags: "q" optional   "u" UNESCO
+const D = [
+{d:"2026-10-01",dow:"Thu",city:"Prep",t:"Museum ticket & insurance",items:[["","Peace Memorial Museum ticket for Nov 22","Web-only hours are 7:30–8:30 and 17:30–18:30, the quiet ones. They can sell out","https://www.asoview.com/channel/tickets/1gUIyAqFog/"],["","Travel insurance — Sava","Check it covers trip cancellation, not just medical"]]},
+{d:"2026-10-07",dow:"Wed",city:"Prep",t:"N'EX booking",items:[["","N'EX Narita → Shinjuku, Nov 7 20:44","Link both Suicas. Opens 10:00 JST, no need to wake up for it","https://www.eki-net.com/en/jreast-train-reservation/Top/Index"]]},
+{d:"2026-10-11",dow:"Sun",city:"Prep",t:"Kanazawa train, cards, phone",anchor:"03:00 — JR-East opens Nov 11 trains at 10:00 JST",items:[["03:00","Tokyo → Kanazawa, Nov 11","Seats A/B. B is a middle seat in ordinary class — check your car","https://www.eki-net.com/en/jreast-train-reservation/Top/Index"],["","Mastercard onto wife's Apple Wallet","If it fails, ask Komercijalna for an additional card in her name"],["","Add Suica to her Wallet once the SE arrives","Needs SE 2nd or 3rd gen — no headphone jack"]]},
+{d:"2026-10-12",dow:"Mon",city:"Prep",t:"Shirakawa-go bus",items:[["","Shirakawa-go bus, return departing approx 13:50","Japan Bus Online","https://japanbusonline.com/en"]]},
+{d:"2026-10-13",dow:"Tue",city:"Prep",t:"Kanazawa → Kyoto",anchor:"03:00 — e5489 opens",items:[["03:00","Book on e5489, PAPER type","Thunderbird can't be ticketless","https://e5489.jr-odekake.net/e5489/ibpc/CBTrainEntryExternalPC?LANG=en"],["","Seats A/B for Lake Biwa","Check the seat map for which window is the lake side"],["","Pick a departure around 13:00","So you make Kiyomizu-dera for sunset"]]},
+{d:"2026-10-15",dow:"Thu",city:"Prep",t:"Four checks",items:[["","Kodai-ji illumination","Confirm the dates. Buy now if it's online-only"],["","Tōfuku-ji peak-season entry rules","For Nov 16"],["","Tori-no-Ichi closing hour at Hanazono","For Nov 7"],["","Gaien ginkgo and Tō-ji illumination dates","For Nov 26 and Nov 15"]]},
+{d:"2026-10-16",dow:"Fri",city:"Prep",t:"Visit Japan Web",items:[["","Register both of you on Visit Japan Web","Speeds up immigration — matters for the 20:44 N'EX","https://www.vjw.digital.go.jp/"]]},
+{d:"2026-10-20",dow:"Tue",city:"Prep",t:"JR Pass",items:[["","Buy the 5-Day Kansai-Hiroshima Pass, Nov 20 start","Official JR-West site. If it refuses the date, try tomorrow","https://www.westjr.co.jp/travel-information/en/tickets-passes/jrwest-rail-pass/kansai_hiroshima/"],["","Check the JMC koyo forecast",""]]},
+{d:"2026-10-22",dow:"Thu",city:"Prep",t:"Osaka → Hiroshima",anchor:"03:00 — seat reservations open",items:[["03:00","Reserve the Nov 22 seats via JR-West","Seats D/E","https://e5489.jr-odekake.net/e5489/ibpc/CBTrainEntryExternalPC?LANG=en"]]},
+{d:"2026-10-23",dow:"Fri",city:"Prep",t:"Start training",items:[["","15,000 steps a day from today","In the new shoes, so they're broken in"]]},
+{d:"2026-10-24",dow:"Sat",city:"Prep",t:"The Nov 24 chain",anchor:"03:00 — three bookings, same window",items:[["03:00","Hiroshima → Okayama 09:00, via JR-West","","https://e5489.jr-odekake.net/e5489/ibpc/CBTrainEntryExternalPC?LANG=en"],["03:00","Okayama → Shin-Osaka 13:30, via JR-West","Covered by the pass","https://e5489.jr-odekake.net/e5489/ibpc/CBTrainEntryExternalPC?LANG=en"],["03:00","Shin-Osaka → Shin-Yokohama, Smart-EX","Seats D/E for Fuji. Same train as above. EX Hayatoku 21 fare — can't be changed once booked","https://smart-ex.jp/en/"]]},
+{d:"2026-10-25",dow:"Sun",city:"Prep",t:"Shibuya Sky",anchor:"16:00 — clocks went back this morning, so 16:00 = 00:00 JST",items:[["16:00","Shibuya Sky — Nov 9, 15:40 entry","Sunset slots clear in minutes. If 15:40 is gone, take 15:20","https://www.shibuya-scramble-square.com/sky/ticket/"],["","Reconfirm all seven hotels","Luggage forwarding accepted, card on file valid. Ask Tokyu REI to hold suitcases from Nov 22 — you arrive Nov 24"]]},
+{d:"2026-10-26",dow:"Mon",city:"Prep",t:"iPhone battery",items:[["","Replace the 13's battery","And hers if the SE needs it"]]},
+{d:"2026-10-28",dow:"Wed",city:"Prep",t:"Dreamination & airport train",items:[["","Check 2026 dates, add Peace Boulevard to Nov 22 if running",""],["","Book N'EX Tokyo → Narita for Nov 28, around 17:30","Opens 10:00 JST today, no rush","https://www.eki-net.com/en/jreast-train-reservation/Top/Index"]]},
+{d:"2026-10-29",dow:"Thu",city:"Prep",t:"The boat",items:[["","Confirm Asakusa → Hamarikyu runs on Sat Nov 28","Only 11:40 and 14:20 call at Hamarikyu","https://www.suijobus.co.jp/en/price"]]},
+{d:"2026-10-30",dow:"Fri",city:"Prep",t:"Offline maps",items:[["","Download Google Maps for all seven cities",""]]},
+{d:"2026-11-04",dow:"Wed",city:"Prep",t:"Miyajima tide",items:[["","Check the Nov 23 tide table","High = floating torii. Low = walk out to it","https://www.miyajima.or.jp/sio/sio11.php"]]},
+{d:"2026-11-05",dow:"Thu",city:"Prep",t:"Pack",items:[["","Tablet, Lightning-to-HDMI adapter and 2m cable",""],["","Power bank, coin bag, dog poop bags",""]]},
+
+{d:"2026-11-06",dow:"Fri",n:1,city:"Departure",t:"Skopje → Tokyo",anchor:"Night flight via Istanbul",items:[["","Night flight from Skopje","","Skopje International Airport","air"]]},
+{d:"2026-11-07",dow:"Sat",n:2,city:"Tokyo",t:"Arrival",anchor:"20:44 N'EX — changeable on your phone until 20:40, then it's gone",items:[
+["19:10","Land at Narita","","Narita International Airport","air"],
+["","40,000 JPY from the 7-11 ATM","Always charge in JPY"],
+["20:44","N'EX to Shinjuku","Tap Suica at the gate. 90 min","Shinjuku Station","train"],
+["","Toyoko Inn Tokyo Shinjuku Kabukicho","Taxi from Shinjuku Station","Toyoko Inn Tokyo Shinjuku Kabukicho","taxi"],
+["","Tori-no-Ichi at Hanazono Shrine","5 min from the hotel. Runs late","Hanazono Shrine Shinjuku","walk"]],
+drop:"Tori-no-Ichi, if you end up on the 21:44"},
+
+{d:"2026-11-08",dow:"Sun",n:3,city:"Tokyo",t:"Asakusa & Akihabara",items:[
+["","Nezu Shrine","Free. Small torii tunnel","Nezu Shrine Tokyo","metro"],
+["","Yanaka Ginza","Pre-WWII neighbourhood — one of the few that escaped the firebombing","Yanaka Ginza","walk"],
+["","Asakusa Culture Tourist Information Center","Taxi from Yanaka. Free deck on the 8th","Asakusa Culture Tourist Information Center","taxi"],
+["","Senso-ji and Nakamise","Walk into the main hall, it's free","Sensoji Temple","walk"],
+["","Hoppy-dori","Plastic stools, beer outdoors","Hoppy Street Asakusa","walk"],
+["","Akihabara Electric Town","","Akihabara Electric Town","metro"],
+["","Rock Bar GODZ","Shinjuku","Rock Bar GODZ Shinjuku","metro","q"]],
+drop:"Akihabara or GODZ — it's your first morning on +8h jet lag"},
+
+{d:"2026-11-09",dow:"Mon",n:4,city:"Tokyo",t:"Shibuya & Harajuku",anchor:"Shibuya Sky, your booked slot",items:[
+["","Meiji Shrine","","Meiji Jingu","metro"],
+["","Yoyogi Park","Alcohol fine","Yoyogi Park","walk"],
+["","Takeshita Street","","Takeshita Street Harajuku","walk"],
+["","Shibuya Crossing","","Shibuya Scramble Crossing","walk"],
+["","Uniqlo Shibuya — Heattech, 2 sets each","You need it from Nov 12","Uniqlo Shibuya","walk"],
+["15:40","Shibuya Sky","No time limit. On a clear evening the sun sinks onto Fuji's left slope around 16:30. Sunset 16:39, city lights by 17:05","Shibuya Sky","walk"],
+["","Nonbei Yokocho","Tiny bars under the tracks. Most open around 18:00","Nonbei Yokocho Shibuya","walk"],
+["","Shinanoya","Get good whisky. Two 700 ml bottles max for the two of you — 1 L each into North Macedonia","Shinanoya Shinjuku","metro"],
+["","Shot Bar Zoetrope","300+ Japanese whiskies. 15 seats. Go early","Shot Bar Zoetrope Shinjuku","walk"],
+["","Golden Gai / Deathmatch in Hell","","Shinjuku Golden Gai","walk"]],
+drop:"The third bar"},
+
+{d:"2026-11-10",dow:"Tue",n:5,city:"Kamakura",t:"Kamakura & Enoshima",anchor:"Sea Candle by 16:00 — Fuji sunset. Leave Hase by 14:30",items:[
+["","JR to Kamakura, about 1 hour","","Kamakura Station","train"],
+["","Tsurugaoka Hachimangu","Via Komachi Street. Free, walk in","Tsurugaoka Hachimangu","walk"],
+["","Enoden 1-Day Pass at Kamakura Station","¥800"],
+["","Kotoku-in — the Great Buddha","Pay ¥50 more to go inside it","Kotokuin Kamakura","train"],
+["","Hasedera","Hillside garden, sea view, the cave","Hasedera Kamakura","walk"],
+["","Shichirigahama","","Shichirigahama Station","train"],
+["16:00","Enoshima Sea Candle","Sunset over Fuji","Enoshima Sea Candle","train"],
+["","Romancecar from Katase-Enoshima","Buy seats on EMot this morning","Katase-Enoshima Station","train"],
+["","Tokyo Metropolitan Government Building","Free projection show, 15 min, every half hour from 17:30","Tokyo Metropolitan Government Building","walk"],
+["","Koenji — live houses and bars","","Koenji Station","train"]],
+drop:"The TMG show"},
+
+{d:"2026-11-11",dow:"Wed",n:6,city:"Kanazawa",t:"Travel to Kanazawa",ship:"Ship the large suitcase to Daiwa Roynet Kyoto",items:[
+["","Duffel — Heattech and warm socks","You need them tomorrow at Shirakawa-go"],
+["","Antenna America, Tokyo Station","Craft beer for the train","Antenna America Tokyo Station","train"],
+["","Shinkansen, 2.5 hours","Seats A/B — Tateyama range on the left","Kanazawa Station","shin"],
+["","Collect the Kanazawa → Kyoto tickets","Green machine at the station"],
+["","Tsuzumi-mon Gate","","Tsuzumi-mon Gate Kanazawa","walk"],
+["","Hotel Resol Trinity Kanazawa","","Hotel Resol Trinity Kanazawa","walk"],
+["","Omicho Market","Stalls wind down by 17:00","Omicho Market Kanazawa","walk"],
+["","Oyama Shrine","Free","Oyama Shrine Kanazawa","walk"],
+["","Nagamachi Bukeyashiki","Pay for Nomura-ke only","Nagamachi Samurai District Kanazawa","walk"],
+["","Heat packs at any konbini","One multipack lasts the trip"]]},
+
+{d:"2026-11-12",dow:"Thu",n:7,city:"Kanazawa",t:"Shirakawa-go",anchor:"The approx 13:50 return bus",items:[
+["","Wear Heattech, warm socks, carry heat packs","Could be 2–4°C in the valley"],
+["","Bus to Shirakawa-go, 1.5 hours","","Shirakawago","bus","u"],
+["","Shiroyama Tenshukaku deck","","Shiroyama Viewpoint Shirakawa-go","walk"],
+["","Gassho-style houses","","Wada House Shirakawago","walk"],
+["13:50","Return bus","Back in Kanazawa about 15:20","","bus"],
+["","Kazuemachi Chaya District","Lantern-lit riverside","Kazuemachi Chaya District","bus"],
+["","Higashi Chaya — Shima or Kaikaro","They shut around 17:00","Higashi Chaya District","walk"],
+["","Oriental Brewing","","Oriental Brewing Higashiyama Kanazawa","walk"],
+["","Roam around Higashi Chaya District","","Higashi Chaya District","walk"]],
+drop:"The teahouse interiors, if the bus runs late. Sunset is 16:47"},
+
+{d:"2026-11-13",dow:"Fri",n:8,city:"Kyoto",t:"To Kyoto & Higashiyama",anchor:"Kodai-ji illumination",items:[
+["","Check out, leave the duffels at the front desk","Collect them on the way back to the station"],
+["","Kenroku-en","Yukitsuri snow ropes up from Nov 1","Kenrokuen Garden","bus"],
+["","Kanazawa Castle grounds","Skip the keep interiors","Kanazawa Castle Park","walk"],
+["","Gyokusen-inmaru Garden","","Gyokusen-inmaru Garden Kanazawa","walk"],
+["","Back to the hotel for the duffels","It's on the way from the castle to the station","Hotel Resol Trinity Kanazawa","bus"],
+["13:00","Shinkansen to Tsuruga, Thunderbird to Kyoto","Change at Tsuruga — follow the Thunderbird signs. About 2 hours","Kyoto Station","shin"],
+["","Drop bags at Daiwa Roynet Kyoto Hachijoguchi, start laundry","","Daiwa Roynet Hotel Kyoto Hachijoguchi","walk"],
+["","JR one stop to Tofukuji, Keihan to Kiyomizu-Gojo, walk up Gojo-zaka","Keihan doesn't reach Kyoto Station. Or taxi, ~15 min","Kiyomizu-Gojo Station","train"],
+["","Kiyomizu-dera","Sunset 16:53 from the stage","Kiyomizu-dera","walk","u"],
+["","Ninen-zaka and Sannen-zaka","Downhill","Ninenzaka Kyoto","walk"],
+["","Kodai-ji night illumination","Bamboo path, mirror pond","Kodai-ji Kyoto","walk"],
+["","Yasaka Shrine and Gion","On the way down to Pontocho. Yasaka is lit at night","Yasaka Shrine","walk"],
+["","Pontocho Alley","","Pontocho Alley Kyoto","walk"],
+["","Kyoto Rum and Whisky","","Kyoto Rum and Whisky","walk"]],
+drop:"The whisky bar"},
+
+{d:"2026-11-14",dow:"Sat",n:9,city:"Kyoto",t:"Arashiyama & Kinkaku-ji",anchor:"Bamboo grove by 07:30. Ryoan-ji and Kinkaku-ji both close 17:00",items:[
+["07:30","Arashiyama Bamboo Grove","Empty at 07:30, a stream by 08:30. 400m, 15 minutes","Arashiyama Bamboo Grove","train"],
+["","Tenryu-ji","Garden ticket only","Tenryu-ji","walk","u"],
+["","Okochi Sanso","¥1,000 includes matcha and a sweet","Okochi Sanso Garden","walk"],
+["","Adashino Nenbutsu-ji","Quiet bamboo path, 8,000 stone Buddhas","Adashino Nenbutsuji","taxi"],
+["","Otagi Nenbutsu-ji","Up Saga-Toriimoto, 10 min. 1,200 rakan","Otagi Nenbutsuji","walk"],
+["","Ryoan-ji","The rock garden. ¥600, 20 minutes is enough","Ryoanji Temple Kyoto","taxi","u"],
+["","Kinkaku-ji","1.1 km from Ryoan-ji, bus 59 is one stop. You can't enter the pavilion","Kinkakuji","bus","u"]],
+drop:"Okochi Sanso"},
+
+{d:"2026-11-15",dow:"Sun",n:10,city:"Kyoto",t:"The Kurama hike",anchor:"Nothing fixed — but Sanjusangendo's last entry is 16:30",ship:"Ship luggage to Via Inn Prime Osaka Shinsaibashi before you leave",items:[
+["","Heattech, warm socks, heat packs","Carry it up, put it on at the top"],
+["","Hotel to Demachiyanagi, 30 min","JR one stop to Tofukuji, then Keihan","Demachiyanagi Station","train"],
+["","Eizan line to Kurama","Take the Kirara if one's due — maple tunnel Ichihara to Ninose","Kurama Station","train"],
+["","Kurama-dera and the funicular","","Kurama-dera","walk"],
+["","Hike over to Kifune Shrine","2.5km, 85m up, 205m down. 1.5–2 hrs. Stone steps and roots","Kifune Shrine","walk"],
+["","Kyoto bus 33 to Kibuneguchi","Almost no taxis up there","Kibuneguchi Station","bus"],
+["","Eizan line Kibuneguchi → Demachiyanagi","","Demachiyanagi Station","train"],
+["","Sanjusangendo","Keihan to Shichijo. 1,001 gilded Kannon. No photography, so it stays quiet","Sanjusangendo","train"],
+["","To-ji night illumination","Bus or taxi from Sanjusangendo, 15 min walk from the hotel. Tallest wooden pagoda in Japan","To-ji Temple Kyoto","bus","u"]],
+drop:"Sanjusangendo — To-ji runs to 21:30 so it survives any overrun"},
+
+{d:"2026-11-16",dow:"Mon",n:11,city:"Kyoto / Nara",t:"Fushimi Inari & Nara",anchor:"Todai-ji closes 17:00",items:[
+["07:00","Fushimi Inari","Free, 24h. Go well past the first corridor","Fushimi Inari Taisha","train"],
+["09:30","Tofuku-ji","Peak foliage. No photos on Tsutenkyo bridge in season","Tofukuji","train"],
+["11:30","Gekkeikan Okura, Fushimi","Canal walk. Torisei for namazake off the tanks","Gekkeikan Okura Sake Museum","train"],
+["13:15","Kintetsu to Nara","Tanbabashi is in the sake district","Kintetsu Tanbabashi Station","train"],
+["14:10","Kofuku-ji","Free to walk the grounds, straight on your path. The five-storey pagoda is under scaffolding until 2033","Kofukuji Temple Nara","walk","u"],
+["14:40","Todai-ji","Largest wooden building on earth","Todaiji","walk","u"],
+["16:15","Nigatsu-do","Free, always open. The veranda at sunset","Nigatsudo Hall Nara","walk","u"],
+["","Rock Bar CRUNCH","Gion. Kintetsu back from Nara, then Keihan to Gion-Shijo","ROCK BAR CRUNCH, 138 Tominagacho, Higashiyama, Kyoto","train","q"]],
+drop:"CRUNCH, then Tofuku-ji. This is your fullest day"},
+
+{d:"2026-11-17",dow:"Tue",n:12,city:"Osaka",t:"Travel to Osaka",anchor:"Yamazaki Museum 13:00",items:[
+["","Check out, leave the duffels at the front desk","Collect them on your way to the train"],
+["","Nishi Hongan-ji","Free, opens 05:30. 15 min walk from the hotel","Nishi Honganji Kyoto","walk","u"],
+["","Free morning — Nishiki Market","Heavy breakfast before whisky","Nishiki Market Kyoto","metro"],
+["","Back to the hotel for the duffels","4 min from Kyoto Station, where the Yamazaki train leaves","Daiwa Roynet Hotel Kyoto Hachijoguchi","metro"],
+["13:00","Suntory Yamazaki Museum","Tasting counter pours from ¥500 — the aged expressions live here","Suntory Yamazaki Distillery","train"],
+["","Via Inn Prime Osaka Shinsaibashi","","Via Inn Prime Osaka Shinsaibashi","train"],
+["","Midosuji Illumination","Walk along Midosuji Avenue. Runs Nov 3 – Dec 31","Midosuji Avenue Osaka","walk"],
+["","Rock Rock","","Rock Rock Osaka","walk"]]},
+
+{d:"2026-11-18",dow:"Wed",n:13,city:"Osaka",t:"Dotonbori & Shinsekai",items:[
+["","Kuromon Ichiba Market","","Kuromon Ichiba Market","metro"],
+["","Dotonbori and the Glico sign","Beer by the river","Glico Sign Dotonbori","walk"],
+["","Hozenji Yokocho","Stone alley, moss-covered Fudo","Hozenji Yokocho","walk"],
+["","Shinsekai","At dusk, when the neon comes on. Two stops from Namba","Shinsekai Osaka","metro"],
+["","Craft Beer Base Bud","Umeda — Midosuji line straight from Shinsekai. Home is three stops on the Yotsubashi line","Craft Beer Base Bud Umeda Osaka","metro"]],
+note:"No anchors. Loosest day of the trip — use it if something slipped."},
+
+{d:"2026-11-19",dow:"Thu",n:14,city:"Osaka",t:"Castle, onsen, Midian",anchor:"Arrive Solaniwa 15:30 for the booked slot. Leave the castle by 14:30",items:[
+["","Osaka Castle, from outside","The interior is a 1931 concrete museum","Osaka Castle","metro"],
+["","Kaiyukan Aquarium","Two stops from Bentencho on the Chuo line, same line as the onsen","Osaka Aquarium Kaiyukan","metro","q"],
+["15:30","Solaniwa Onsen","Shoes off, wristband, yukata. Eat first, don't drink first","Solaniwa Onsen Osaka Bay Tower","metro"],
+["16:00","Private bath, 90 min","Sunset 16:51 — you'll watch the light go from the water"],
+["","Rooftop garden in yukata","3,300m², lit at night"],
+["","Bar Midian","Umeda, not Shinsekai. JR from Bentencho to Osaka, then 10 min on foot. Opens 20:00 — no rush leaving Solaniwa","Rock Bar MiDiAN, 10-16 Doyamacho, Kita Ward, Osaka","train"]],
+drop:"Midian, if the bath leaves you done for the day"},
+
+{d:"2026-11-20",dow:"Fri",n:15,city:"Himeji / Kobe",t:"Himeji & Kobe",anchor:"Himeji Castle — the only original keep in Japan",items:[
+["","Shin-Osaka green window","Print the pass, collect the Smart-EX ticket, ask for matching seats on both Nov 24 legs","Shin-Osaka Station","metro"],
+["","Shinkansen to Himeji, 30 min","","Himeji Station","shin"],
+["","Himeji Castle and Koko-en","Combo ticket. Six floors of original timber, steep stairs","Himeji Castle","walk","u"],
+["","Kobe Port Tower","Sunset 16:52 at the harbour","Kobe Port Tower","train"],
+["","Maya Cable to Kikuseidai","Taxi to the cable station. Last descent 19:50 on a Friday","Maya Cable Shita Station","rope","q"]],
+drop:"Maya first, then Port Tower. Longest day of the trip"},
+
+{d:"2026-11-21",dow:"Sat",n:16,city:"Osaka",t:"Rest day",ship:"Ship the suitcases to Yokohama today, not tomorrow",items:[
+["","Laundry",""],
+["","Americamura","","Amerikamura Osaka","walk"],
+["","Umineko izakaya","","Umineko Osaka","walk"],
+["","Eikan-do night illumination, Kyoto","Opens Nov 20. 30 min each way. Better colour than Nov 13–16","Eikando Zenrinji Kyoto","train"]],
+note:"First day of a three-day weekend. Good day not to be travelling."},
+
+{d:"2026-11-22",dow:"Sun",n:17,city:"Hiroshima",t:"Travel to Hiroshima",anchor:"Your Peace Museum time slot — build the day around it",items:[
+["","Duffel — Heattech, warm socks, heat packs",""],
+["","Shinkansen, 1.5 hours","Seats D/E","Hiroshima Station","shin"],
+["","Hotel Vista Hiroshima","Tram to Hatchobori","Hotel Vista Hiroshima","tram"],
+["","Shukkeien Garden","10 min walk","Shukkeien Garden","walk"],
+["","Hiroshima Castle","A 1958 concrete reconstruction — outside only","Hiroshima Castle","walk","q"],
+["","Peace Memorial Park","","Hiroshima Peace Memorial Park","tram"],
+["","Atomic Bomb Dome","Exterior only, always","Atomic Bomb Dome","walk","u"],
+["","Peace Memorial Museum","Your booked slot","Hiroshima Peace Memorial Museum","walk"]],
+note:"The UNESCO listing is the Dome itself — the park around it is not inscribed."},
+
+{d:"2026-11-23",dow:"Mon",n:18,city:"Miyajima",t:"Miyajima Island",anchor:"Ropeway 09:00–09:15 — at Momijidani by 08:40. Leave the hotel at 07:00",items:[
+["","Wear Heattech, warm socks, carry heat packs",""],
+["07:00","Leave the hotel","National holiday, last day of a three-day weekend"],
+["","Miyajimaguchi","","Miyajimaguchi Station","train"],
+["","Ferry","JR pass covers it, ¥100 island fee. Stand on the outer right","Miyajima Ferry Terminal","ferry"],
+["","Great Torii, in passing","Five minutes on the way to Momijidani — full visit this afternoon","Itsukushima Shrine","walk","u"],
+["08:40","Ropeway station, Momijidani","About 10 min uphill from the park, or the free shuttle. ~25 min from the pier","Miyajima Ropeway Momijidani Station","walk"],
+["09:00","Ropeway","Already reserved. Fare ~¥2,000 each return. Descent unreserved","","rope"],
+["","Mount Misen summit","20–30 min each way over stone steps. 100–150m of climb","Mount Misen Observatory","walk","qu"],
+["","Daisho-in","Next to the ropeway base. Free, badly underrated","Daishoin Miyajima","walk"],
+["","Great Torii and Itsukushima Shrine interior","Tide table decides the better hour","Itsukushima Shrine","walk","u"],
+["","Senjokaku","¥100, cheapest thing on the island","Senjokaku Miyajima","walk"],
+["","Miyajima Beer","","Miyajima Brewery","walk"],
+["","Ferry back to Hiroshima","","Miyajimaguchi Station","ferry"]],
+drop:"The summit if it's in cloud — and skip the ropeway entirely if you can't see the mountain from the pier"},
+
+{d:"2026-11-24",dow:"Tue",n:19,city:"Yokohama",t:"Travel to Yokohama",anchor:"Trains at 09:00 and 13:30",items:[
+["09:00","Shinkansen to Okayama, 40 min","","Okayama Station","shin"],
+["","Kurashiki Bikan","Lockers at the station. Japan Blue Jeans and Momotaro have shops here","Kurashiki Bikan Historical Quarter","train"],
+["13:30","Okayama → Shin-Yokohama, 3h15","Seats D/E for Fuji. Manned gate at the other end, show pass and Smart-EX","Shin-Yokohama Station","shin"],
+["","Yokohama Tokyu REI Hotel","","Yokohama Tokyu REI Hotel","train"],
+["","Thrash Zone","","Thrash Zone Yokohama","walk"],
+["","Nogecho","One stop from Yokohama to Sakuragicho","Noge Yokohama","train"]],
+drop:"Kurashiki, if anything slips"},
+
+{d:"2026-11-25",dow:"Wed",n:20,city:"Yokohama",t:"IRON MAIDEN",anchor:"The concert. K-Arena is in Minato Mirai, not Shin-Yokohama",ship:"Ship the suitcase to Narita Terminal 1 (Turkish, South Wing). Keep the receipt — you need it to collect. Take out clothes for four days first",items:[
+["","Yokohama Chinatown","","Yokohama Chinatown","train"],
+["","Yamashita Park","","Yamashita Park Yokohama","walk"],
+["","Osanbashi Pier","","Osanbashi Pier Yokohama","walk"],
+["","Red Brick Warehouse","","Yokohama Red Brick Warehouse","walk"],
+["","Cosmo Clock 21","","Cosmo Clock 21","walk"],
+["","Milight, Grand Mall Park","16:00–23:00 along the corridor to the arena","Grand Mall Park Yokohama","walk"],
+["","IRON MAIDEN, K-Arena","Final show until at least 2028. Check merch queue times","K-Arena Yokohama","walk"]],
+drop:"Cosmo Clock"},
+
+{d:"2026-11-26",dow:"Thu",n:21,city:"Tokyo",t:"Tokyo & Ginza",anchor:"East Gardens last entry 15:30. Ginkgo illumination from 16:30. That order or nothing",items:[
+["","Sotetsu Fresa Inn Tokyo Kanda","Train back to Tokyo, 40 min","Sotetsu Fresa Inn Tokyo Kanda","train"],
+["","Imperial Palace East Gardens","Free. Closes 16:00 in winter","Imperial Palace East Gardens","walk"],
+["16:30","Meiji Jingu Gaien Ginkgo Avenue","Peak colour late November","Meiji Jingu Gaien Ginkgo Avenue","metro"],
+["","Azabudai Hills Mori JP Tower","Sky Lobby Cafe observation deck — ticket and a drink","Azabudai Hills Mori JP Tower","metro","q"],
+["","BicCamera Yurakucho","¥200 tasting. Buy only if Shinanoya didn't deliver","BicCamera Yurakucho","metro"],
+["","Campbelltoun Loch","Minutes away. Eight seats, a wall of bottles","Campbelltoun Loch Yurakucho","walk"],
+["","Depachika, Mitsukoshi Ginza","Discounts after 19:00","Mitsukoshi Ginza","walk"],
+["","Wine Bar Nuit Blanche","","Wine Bar Nuit Blanche Ginza","walk"]],
+drop:"Azabudai Hills — the gardens and the ginkgo are the timed ones"},
+
+{d:"2026-11-27",dow:"Fri",n:22,city:"Tokyo",t:"Tsukiji & the west side",anchor:"Shinjuku Gyoen last entry 16:00 — be inside by 13:30",items:[
+["08:00","Tsukiji Outer Market","Stalls thin badly after 11:00","Tsukiji Outer Market","metro"],
+["","Tsukiji Hongwan-ji","Two minutes from the market","Tsukiji Hongwanji","walk"],
+["13:30","Shinjuku Gyoen","58 hectares — it deserves two hours","Shinjuku Gyoen National Garden","metro"],
+["","Shimokitazawa","Vintage, second-hand","Shimokitazawa Station","train"],
+],
+drop:"Tsukiji Hongwan-ji"},
+
+{d:"2026-11-28",dow:"Sat",n:23,city:"Departure",t:"Last day",anchor:"Boat 14:20 — only two a day call at Hamarikyu. Bags stay at the hotel",items:[
+["","Check out, leave the duffels at the front desk","Free. You collect them on the way to the airport"],
+["09:00","Koishikawa Korakuen","","Koishikawa Korakuen","metro"],
+["10:45","Hijiri Bridge","Red Marunouchi train crossing the Kanda river","Hijiribashi Bridge Ochanomizu","metro"],
+["11:45","Asakusa — Hoppy Street","","Hoppy Street Asakusa","metro","q"],
+["13:50","Buy boat tickets at the pier machine","Cash, machine only. ¥1,180 each, includes the garden","Asakusa Pier Tokyo Cruise","walk"],
+["14:20","Boat to Hamarikyu","35 min down the Sumida","","ferry"],
+["14:55","Hamarikyu and Nakajima tea house","Last entry 16:30. Matcha on the tidal pond","Hamarikyu Gardens","walk"],
+["16:45","Walk to Shimbashi, 12 min","","Shimbashi Station","walk"],
+["17:00","JR to Kanda, collect the bags","6 min. Hotel is 4 min from the south exit","Sotetsu Fresa Inn Tokyo Kanda","train"],
+["","N'EX from Tokyo Station","One stop from Kanda. ~55 min, booked Oct 28. Stay on to the last stop, Terminal 1","Tokyo Station","train"],
+["","Narita Terminal 1, around 18:45","Turkish is in the South Wing. Yamato counter — hand over the receipt. Pack the bottles, check in. Duty free is the whisky fallback — keep it sealed through Istanbul","Narita Airport Terminal 1","train"],
+["21:55","Depart","","","air"]],
+drop:"Hoppy Street, then Hijiri Bridge"}
+];
+
+const app = document.getElementById('app');
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const EM = { walk:"🚶", metro:"🚇", train:"🚃", shin:"🚄", bus:"🚌", taxi:"🚕",
+             tram:"🚋", ferry:"⛴️", rope:"🚡", air:"✈️" };
+let i = 0;
+
+function todayStr(){ const n=new Date(); return n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0"); }
+function pick(){
+  const t = todayStr();
+  let idx = D.findIndex(x => x.d === t);
+  if (idx >= 0) return idx;
+  idx = D.findIndex(x => x.d > t);
+  return idx >= 0 ? idx : D.length - 1;
+}
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
+
+// Before the trip starts, "directions from here" would route from Skopje to Japan.
+// So until Nov 6 a tap just shows the place on the map; from Nov 6 it gives directions.
+const TRIP_START = "2026-11-06";
+function inJapan(){ return todayStr() >= TRIP_START; }
+function mapUrl(q, mode){
+  if (!inJapan())
+    return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q);
+  const tm = (mode === "walk") ? "walking" : "transit";
+  return "https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(q)+"&travelmode="+tm;
+}
+
+// Where you sleep each night — tap for directions home
+const HOTELS = [
+  ["2026-11-07","2026-11-10","Toyoko Inn Tokyo Shinjuku Kabukicho"],
+  ["2026-11-11","2026-11-12","Hotel Resol Trinity Kanazawa"],
+  ["2026-11-13","2026-11-16","Daiwa Roynet Hotel Kyoto Hachijoguchi"],
+  ["2026-11-17","2026-11-21","Via Inn Prime Shinsaibashi Yotsubashi"],
+  ["2026-11-22","2026-11-23","Hotel Vista Hiroshima"],
+  ["2026-11-24","2026-11-25","Yokohama Tokyu REI Hotel"],
+  ["2026-11-26","2026-11-27","Sotetsu Fresa Inn Tokyo Kanda"]
+];
+// How tomorrow starts — decides how late tonight can run
+const EARLY = {
+  "2026-11-12":"bus to Shirakawa-go around 08:00",
+  "2026-11-14":"bamboo grove by 07:30",
+  "2026-11-16":"Fushimi Inari at 07:00",
+  "2026-11-20":"longest day of the trip",
+  "2026-11-23":"leave the hotel at 07:00",
+  "2026-11-24":"check out, 09:00 train",
+  "2026-11-27":"Tsukiji at 08:00"
+};
+function hotelFor(d){ const h = HOTELS.find(r => d >= r[0] && d <= r[1]); return h ? h[2] : null; }
+
+function label(x, i){
+  const [,m,dd] = x.d.split("-");
+  const dt = parseInt(dd)+" "+MON[parseInt(m)-1];
+  return x.n ? ("Day "+x.n+" · "+dt+" · "+x.city) : (dt+" · "+x.city);
+}
+function buildJump(){
+  const trip = inJapan();
+  return '<select id="jump" aria-label="Jump to a day">' + D.map(function(x,k){
+    if (trip && !x.n && k !== i) return '';   // prep days drop out once you've landed
+    return '<option value="'+k+'"'+(k===i?' selected':'')+'>'+esc(label(x,k))+'</option>';
+  }).join('') + '</select>';
+}
+
+function render(){
+  const x = D[i];
+  const [y,m,dd] = x.d.split("-");
+  const t = todayStr();
+  const isToday = x.d === t;
+
+  let h = '<div class="datebar">';
+  h += '<span class="dow">'+x.dow+(isToday?' · TODAY':'')+'</span>';
+  h += '<span class="date">'+parseInt(dd)+' '+MON[parseInt(m)-1]+'</span>';
+  h += buildJump();
+  h += '</div><h1>'+esc(x.t)+'</h1>';
+
+  if (x.anchor) h += '<div class="anchor"><span class="lbl">Anchor</span><span class="txt">'+esc(x.anchor)+'</span></div>';
+  if (x.ship) h += '<div class="ship">'+esc(x.ship)+'</div>';
+
+  let anyMap = false;
+  h += '<ol class="plan">';
+  x.items.forEach(function(it, k){
+    const flags = it[5] || "";
+    const cls = [it[0] ? "fix" : "", flags.indexOf("q") >= 0 ? "opt" : ""].filter(Boolean).join(" ");
+    h += '<li'+(cls?' class="'+cls+'"':'')+'>';
+    if (it[0]) h += '<span class="t">'+esc(it[0])+'</span>';
+    if (it[3]) {
+      const web = /^https?:\/\//.test(it[3]);   // booking site, not a place
+      if (!web) anyMap = true;
+      h += '<a class="go" href="'+esc(web ? it[3] : mapUrl(it[3], it[4]))+'" target="_blank" rel="noopener">'+esc(it[1])+'</a>';
+    } else {
+      h += esc(it[1]);
+    }
+    if (it[4] && EM[it[4]]) h += '<span class="m">'+EM[it[4]]+'</span>';
+    if (flags.indexOf("u") >= 0) h += '<span class="un">UNESCO</span>';
+    if (flags.indexOf("q") >= 0) h += '<span class="q">?</span>';
+    if (it[2]) h += '<span class="n">'+esc(it[2])+'</span>';
+    h += '</li>';
+  });
+  h += '</ol>';
+
+  if (x.drop) h += '<div class="drop"><b>Drop first:</b> '+esc(x.drop)+'</div>';
+  if (x.note) h += '<div class="note">'+esc(x.note)+'</div>';
+  const hotel = hotelFor(x.d);
+  if (hotel) h += '<div class="tonight"><span class="ic">🛏️</span><span><span class="lb">Tonight</span>'
+    + '<a href="'+mapUrl(hotel, "transit")+'" target="_blank" rel="noopener">'+esc(hotel)+'</a></span></div>';
+  // Peek at tomorrow — for planning the evening, not the clock
+  if (hotelFor(x.d) && i < D.length-1 && D[i+1].n) {
+    const tm = D[i+1];
+    const first = tm.items.find(it => it[0]) || tm.items[0];
+    let lead = tm.anchor || (first ? ((first[0] ? first[0]+' ' : '') + first[1]) : '');
+    const extras = [];
+    if (!/Heattech/i.test(lead) && tm.items.some(it => /Heattech/i.test(it[1]))) extras.push('Heattech');
+    if (tm.ship) extras.push('luggage to ship');
+    const pace = EARLY[tm.d] ? '<span class="pace early">🌅 Early start</span>' : '<span class="pace easy">🍻 Easy morning</span>';
+    h += '<div class="tmrw" id="tmrw"><span class="lb">Tomorrow · '+esc(tm.city)+pace+'</span><b>'+esc(tm.t)+'</b>'
+      + (lead ? ' — '+esc(lead) : '') + (extras.length ? ' · '+esc(extras.join(' · ')) : '') + '</div>';
+  }
+  h += '<div class="off">No signal — showing the saved copy. Map links need a connection.</div>';
+  if (anyMap) h += '<div class="hint">'
+    + (inJapan() ? 'Tap a place for <b>directions from where you are</b>'
+                 : 'Tap a place to see it on the map. From <b>6 Nov</b> the same tap gives directions from where you are')
+    + '<br>🚶 walk · 🚇 metro · 🚃 train · 🚄 shinkansen · 🚋 tram · 🚌 bus · 🚕 taxi · ⛴️ ferry · 🚡 ropeway</div>';
+  if (x.n) h += '<div class="sos"><a href="tel:110">🚓 Police 110</a><a href="tel:119">🚑 Ambulance · Fire 119</a>'
+    + '<a href="tel:+815038162787">☎️ Visitor Hotline 24h, English</a></div>';
+
+  if (x.d > t && i === pick()) {
+    const days = Math.round((new Date(x.d) - new Date(t)) / 86400000);
+    if (days > 0) h = '<div class="pre"><div class="big">'+days+'</div><div class="cap">day'+(days===1?'':'s')+' until this</div></div>' + h;
+  }
+
+  app.innerHTML = h;
+  document.getElementById('jump').onchange = function(){ i = +this.value; render(); };
+  const tw = document.getElementById('tmrw'); if (tw) tw.onclick = function(){ i++; render(); };
+  document.getElementById('prev').disabled = (i === 0);
+  document.getElementById('next').disabled = (i === D.length - 1);
+  document.getElementById('now').disabled = (i === pick());
+  window.scrollTo(0,0);
+}
+
+document.getElementById('prev').onclick = function(){ if(i>0){i--;render();} };
+document.getElementById('next').onclick = function(){ if(i<D.length-1){i++;render();} };
+document.getElementById('now').onclick = function(){ i = pick(); render(); };
+
+function netState(){ document.body.classList.toggle('offline', !navigator.onLine); }
+window.addEventListener('online', netState);
+window.addEventListener('offline', netState);
+netState();
+
+// Re-check the date when the app is resumed from the background, so a home-screen
+// icon left open overnight still lands on the right day.
+let lastDay = todayStr();
+document.addEventListener('visibilitychange', function(){
+  if (!document.hidden && todayStr() !== lastDay) { lastDay = todayStr(); i = pick(); render(); }
+});
+
+// Swipe left/right to change day
+let sx = null, sy = null;
+document.addEventListener('touchstart', function(e){
+  if (e.target.closest('select, nav')) { sx = null; return; }
+  sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+}, {passive:true});
+document.addEventListener('touchend', function(e){
+  if (sx === null) return;
+  const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+  sx = null;
+  if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+  if (dx < 0 && i < D.length-1) { i++; render(); }
+  else if (dx > 0 && i > 0) { i--; render(); }
+}, {passive:true});
+
+if ('serviceWorker' in navigator)
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('./sw.js').catch(function(){}); });
+
+i = pick();
+render();
+</script>
+</body>
+</html>

@@ -337,7 +337,7 @@ function decodeText(buf) {
   if (cs) { try { return new TextDecoder(cs.toLowerCase()).decode(buf); } catch (e) {} }
   const utf = new TextDecoder("utf-8").decode(buf);
   // Not valid UTF-8 → most likely an older Windows export (Cyrillic or Central European).
-  if (utf.includes("�")) { try { const t = new TextDecoder("windows-1251").decode(buf); if (/[а-яА-Я]{3}/.test(t)) return t; return new TextDecoder("windows-1250").decode(buf); } catch (e) {} }
+  if (utf.includes("\uFFFD")) { try { const t = new TextDecoder("windows-1251").decode(buf); if (/[а-яА-Я]{3}/.test(t)) return t; return new TextDecoder("windows-1250").decode(buf); } catch (e) {} }
   return utf;
 }
 function sheetRows(wb) {

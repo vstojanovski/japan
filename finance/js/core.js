@@ -33,7 +33,7 @@ const monthShort = ym => monthName(ym, { month: "short" });
 const monthShortYear = ym => monthName(ym, { month: "short", year: "numeric" });
 function dayName(s, opts = { weekday: "long", month: "long", day: "numeric" }) { return new Date(s + "T12:00:00").toLocaleDateString(undefined, opts); }
 const dateShort = s => dayName(s, { month: "short", day: "numeric", year: "numeric" });
-const titleCase = s => String(s).replace(/\b([a-z])/g, c => c.toUpperCase());
+const titleCase = s => String(s).replace(/(^|[^\p{L}'’])(\p{L})/gu, (m, a, c) => a + c.toUpperCase());
 function hueOf(s) { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
 
 /* ---------- groups & categories ----------
@@ -70,27 +70,27 @@ const DEFAULT_CATS = [
 // [pattern, category, sign] — sign 1 = only inflows, -1 = only outflows. First match wins.
 const BUILTIN = [
   [/autopay|payment.{0,12}thank you|credit c(ar)?r?d pmt|card payment|epay/i, "Credit card payment"],
-  [/payroll|salary|direct dep|paycheck/i, "Paycheck", 1],
-  [/interest (paid|payment|earned)|^interest\b|dividend/i, "Interest & dividends", 1],
-  [/interest charge|late fee|overdraft|service fee|atm fee|foreign transaction|annual fee|monthly fee/i, "Fees"],
-  [/\batm\b|cash withdrawal/i, "Cash & ATM"],
-  [/transfer|zelle|venmo|cash app|vanguard|fidelity|schwab|robinhood|wealthfront|betterment/i, "Transfer"],
+  [/payroll|salary|direct dep|paycheck|плата|plata|исплата на плата|pension|пензија/i, "Paycheck", 1],
+  [/interest (paid|payment|earned)|^interest\b|dividend|камата|kamata|дивиденд/i, "Interest & dividends", 1],
+  [/interest charge|late fee|overdraft|service fee|atm fee|foreign transaction|annual fee|monthly fee|провизија|provizija|надоместок|nadomestok|членарина за картичка|одржување на сметка/i, "Fees"],
+  [/\batm\b|cash withdrawal|банкомат|bankomat|подигање на готовина|isplata gotov/i, "Cash & ATM"],
+  [/transfer|zelle|venmo|cash app|vanguard|fidelity|schwab|robinhood|wealthfront|betterment|пренос|prenos|штедна|stedna|штедење/i, "Transfer"],
   [/mortgage|rocket mtg|mr\.? cooper|loan ?care/i, "Mortgage"],
   [/\bhoa\b|homeowners assoc/i, "HOA"],
   [/\brent\b|apartments/i, "Rent"],
-  [/pg&e|electric|\bwater\b|utilit|con ed|duke energy|gas co\b|sewer|ebmud/i, "Utilities"],
-  [/comcast|xfinity|verizon|at&t|t-mobile|tmobile|spectrum|mint mobile|google fi/i, "Internet & phone"],
-  [/geico|state farm|progressive|allstate|insurance|lemonade/i, "Insurance"],
+  [/pg&e|electric|\bwater\b|utilit|con ed|duke energy|gas co\b|sewer|ebmud|\bevn\b|евн|струја|водовод|vodovod|топлификација|toplifikacija|\bбег\b|комунална|komunaln|ѓубре/i, "Utilities"],
+  [/comcast|xfinity|verizon|at&t|t-mobile|tmobile|spectrum|mint mobile|google fi|телеком|telekom|\ba1\b|а1 македонија|lycamobile/i, "Internet & phone"],
+  [/geico|state farm|progressive|allstate|insurance|lemonade|осигурување|osiguruvanje|triglav|триглав|sava osig|eurolink|винер|wiener|halk osig/i, "Insurance"],
   [/nelnet|navient|sallie mae|mohela|student ln|student loan/i, "Student loan"],
   [/toyota fin|honda fin|ally auto|auto (loan|pmt)|car payment/i, "Auto loan"],
-  [/uber ?eats|doordash|grubhub|postmates|seamless|caviar|sweetgreen|chipotle|restaurant|pizza|sushi|taco|burger|ramen|bistro|grill|kitchen|diner|ichiran|tst\*/i, "Restaurants"],
-  [/starbucks|coffee|blue bottle|peet|dunkin|philz|\bcafe\b/i, "Coffee"],
-  [/trader joe|whole foods|safeway|kroger|costco|aldi|grocery|market|wegmans|publix|sprouts|lawson|7-eleven|familymart/i, "Groceries"],
+  [/wolt|korpa|корпа|ресторан|restoran|пицерија|picerij|скара|кафана|kafana|uber ?eats|doordash|grubhub|postmates|seamless|caviar|sweetgreen|chipotle|restaurant|pizza|sushi|taco|burger|ramen|bistro|grill|kitchen|diner|ichiran|tst\*/i, "Restaurants"],
+  [/starbucks|coffee|blue bottle|peet|dunkin|philz|\bcafe\b|\bkafe\b|\bкафе\b|kafeterija|кафетерија/i, "Coffee"],
+  [/trader joe|whole foods|safeway|kroger|costco|aldi|grocery|market|wegmans|publix|sprouts|lawson|7-eleven|familymart|\bvero\b|\bверо\b|ramstore|рамстор|tinex|тинекс|\bkam\b|\bкам\b|stokomak|стокомак|reptil|рептил|маркет|супермаркет|пазар|pazar/i, "Groceries"],
   [/\buber\b|\blyft\b|metro|transit|clipper|\bbart\b|\bmta\b|suica|amtrak/i, "Rideshare & transit"],
   [/parking|toll|fastrak|sfmta/i, "Parking & tolls"],
-  [/\bshell\b|chevron|exxon|mobil\b|arco|valero|sunoco|citgo|\bbp\b/i, "Gas"],
+  [/\bshell\b|chevron|exxon|mobil\b|arco|valero|sunoco|citgo|\bbp\b|makpetrol|макпетрол|\bokta\b|\bокта\b|lukoil|лукоил|бензинск|benzinsk|\bпетрол\b/i, "Gas"],
   [/jiffy lube|firestone|midas|auto repair|car wash/i, "Auto maintenance"],
-  [/cvs|walgreens|pharmacy|rite aid/i, "Pharmacy"],
+  [/cvs|walgreens|pharmacy|rite aid|аптека|apteka|zegin|зегин|\bфармација|farmacij/i, "Pharmacy"],
   [/dental|doctor|medical|medicine|clinic|hospital|kaiser|urgent care/i, "Medical"],
   [/netflix|spotify|hulu|disney|apple\.com|icloud|youtube|hbo|max\.com|patreon|openai|chatgpt|claude|anthropic|dropbox|notion|adobe|audible|nytimes/i, "Subscriptions"],
   [/equinox|\bgym\b|peloton|classpass|yoga|fitness|crossfit/i, "Fitness"],
@@ -120,7 +120,7 @@ const KNOWN_MERCHANTS = [
 function merchantKey(d) {
   let s = String(d || "").toLowerCase();
   s = s.replace(/^(pos |debit card |debit |purchase |checkcard |recurring |sq ?\*|tst ?\*|pp ?\*|paypal ?\*)+/, "");
-  s = s.replace(/[#*]?\d[\d\-\/.:]*/g, " ").replace(/[^a-z&.' ]+/g, " ").replace(/\s+/g, " ").trim();
+  s = s.replace(/[#*]?\d[\d\-\/.:]*/g, " ").replace(/[^\p{L}&.' ]+/gu, " ").replace(/\s+/g, " ").trim();
   const k = s.split(" ").filter(w => w.length > 1 || w === "&").slice(0, 3).join(" ");
   return k || String(d || "").toLowerCase().trim();
 }

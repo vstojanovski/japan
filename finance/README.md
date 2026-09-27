@@ -90,9 +90,24 @@ sudo systemctl enable --now kakeibo
 
 To use it away from home, put it behind [Tailscale](https://tailscale.com) rather than opening a port on your router. Then add it to your phone's home screen; it opens full-screen like an app.
 
-## Importing CSV files
+## Importing files from your bank
 
-Most banks let you download transactions as CSV. Kakeibo finds the date, description and amount columns on its own, including files with separate money-in and money-out columns, European number formats, and day-first dates. It categorizes each row and skips duplicates, so importing an overlapping file twice is safe. Check the preview before you import.
+Choose **Import** and pick the file your bank gives you. Kakeibo reads:
+
+- **Excel**: `.xls` and `.xlsx`, including the `.xls` files many banks actually produce as HTML or XML tables, in older Windows Cyrillic and Central European encodings too.
+- **PDF statements** that contain text, including password-protected ones (you'll be asked for the password). Scanned statements, which are pictures of pages, can't be read; use the bank's `.xls` export for those.
+- **CSV** and tab-separated text.
+
+For each file it:
+
+- finds the table, skipping the bank's introductory lines, headings and totals
+- matches the columns, in English or Macedonian/Serbian/Croatian (Датум, Опис/Намена, Износ, Должи/Побарува, Салдо…), and ignores the running balance
+- understands day-first dates (`02.09.2026`) and European amounts (`1.234,56`)
+- joins wrapped PDF descriptions back into one line
+
+Everything is shown in a preview you can adjust before importing. Duplicates are skipped, so importing overlapping statements is safe. If the file mentions denars, the importer offers to switch the currency to MKD. Common Macedonian merchants and keywords (EVN, Vero, Ramstore, Makpetrol, плата, пренос, провизија…) are categorized automatically, and every category you correct teaches a rule for next time.
+
+The Excel and PDF readers (SheetJS and PDF.js, see `vendor/`) are bundled with the app and load only when you import a file.
 
 ## Your data
 

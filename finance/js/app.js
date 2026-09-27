@@ -282,13 +282,14 @@ function parseAmount(s) {
   return neg ? -v : v;
 }
 function detectDateOrder(samples) {
-  const ss = samples.filter(Boolean).map(s => s.split(/[ T]/)[0]);
+  const ss = samples.filter(Boolean).map(s => String(s).split(/[ T]/)[0]);
   if (ss.length && ss.every(s => /^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}$/.test(s))) return "ymd";
   for (const s of ss) { const p = s.split(/[\/.\-]/).map(Number); if (p[0] > 12 && p[0] <= 31) return "dmy"; }
+  if (ss.some(s => /^\d{1,2}\.\d{1,2}\.\d{2,4}/.test(s))) return "dmy";   // dotted dates are day-first everywhere
   return "mdy";
 }
 function parseDate(s, order) {
-  s = String(s || "").trim(); if (!s) return null;
+  s = String(s || "").trim().replace(/\.$/, ""); if (!s) return null;
   const p = s.split(/[ T]/)[0].split(/[\/.\-]/);
   let y, m, d;
   if (p.length === 3 && p.every(x => /^\d+$/.test(x))) {
@@ -297,79 +298,242 @@ function parseDate(s, order) {
     else [m, d, y] = p.map(Number);
     if (y < 100) y += 2000;
   } else { const t = new Date(s); if (isNaN(t)) return null; y = t.getFullYear(); m = t.getMonth() + 1; d = t.getDate(); }
-  if (!(m >= 1 && m <= 12 && d >= 1 && d <= 31 && y > 1970)) return null;
+  if (!(m >= 1 && m <= 12 && d >= 1 && d <= 31 && y > 1970 && y < 2100)) return null;
   return y + "-" + pad(m) + "-" + pad(d);
 }
+// Column names in English and in Macedonian/Serbian/Croatian (Latin and Cyrillic).
+const HDR = {
+  date: /date|datum|датум|дата|valuta|валута|posted|knji[zž]|књиж/i,
+  desc: /descr|payee|merchant|^name$|memo|details|narrative|opis|опис|namena|намена|namjena|svrha|сврха|цел на|primač|primalac|примач|корисник|korisnik|nalogoprim|налогоприм|назив|naziv|partner|партнер/i,
+  amount: /amount|iznos|износ|^value$|сума|suma/i,
+  debit: /debit|withdraw|money out|paid out|dolzi|dolži|должи|isplat|исплат|zadu[zž]|задолж|задуж|rashod|расход|odliv|одлив/i,
+  credit: /credit(?! ?card)|deposit|money in|paid in|pobaruva|побарува|potra[zž]|uplat|уплат|odobr|одобр|priliv|прилив|prihod|приход/i,
+  balance: /balance|saldo|салдо|stanje|состојба|состојба|стање/i,
+  category: /category|kategorij|категориј/i
+};
 function guessColumns(header) {
-  const find = (...res) => { for (const re of res) { const i = header.findIndex(h => re.test(h)); if (i >= 0) return i; } return -1; };
-  const amount = find(/^amount$/i, /^(transaction )?amount/i, /amount(?!.*(debit|credit))/i, /^value$/i);
+  const h = header.map(x => String(x || ""));
+  const find = (re, not) => h.findIndex(x => re.test(x) && !(not && not.test(x)));
+  const amount = find(HDR.amount, new RegExp([HDR.debit.source, HDR.credit.source, HDR.balance.source].join("|"), "i"));
   return {
-    date: find(/^(transaction|trans\.?) ?date/i, /^date$/i, /date/i, /posted/i),
-    desc: find(/^description$/i, /description/i, /payee/i, /merchant/i, /^name$/i, /memo|details|narrative/i),
+    date: find(HDR.date),
+    desc: find(HDR.desc),
     amount,
-    debit: amount >= 0 ? -1 : find(/debit|withdraw|money out|paid out/i),
-    credit: amount >= 0 ? -1 : find(/credit(?! ?card)|deposit|money in|paid in/i),
-    category: find(/category/i)
+    debit: amount >= 0 ? -1 : find(HDR.debit, HDR.balance),
+    credit: amount >= 0 ? -1 : find(HDR.credit, HDR.balance),
+    category: find(HDR.category)
   };
 }
+
+/* ---------- reading bank files: CSV, Excel (.xls/.xlsx, incl. HTML/XML "xls"), PDF ---------- */
+const SCRIPTS = {};
+function loadScript(src) {
+  return SCRIPTS[src] ||= new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = () => { delete SCRIPTS[src]; rej(new Error("Couldn't load the file reader (" + src + ").")); }; document.head.appendChild(s); });
+}
+const readBuf = file => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsArrayBuffer(file); });
+function decodeText(buf) {
+  const head = new TextDecoder("latin1").decode(buf.slice(0, 4096));
+  const cs = (head.match(/charset=["']?([\w-]+)/i) || head.match(/encoding=["']([\w-]+)/i) || [])[1];
+  if (cs) { try { return new TextDecoder(cs.toLowerCase()).decode(buf); } catch (e) {} }
+  const utf = new TextDecoder("utf-8").decode(buf);
+  // Not valid UTF-8 → most likely an older Windows export (Cyrillic or Central European).
+  if (utf.includes("�")) { try { const t = new TextDecoder("windows-1251").decode(buf); if (/[а-яА-Я]{3}/.test(t)) return t; return new TextDecoder("windows-1250").decode(buf); } catch (e) {} }
+  return utf;
+}
+function sheetRows(wb) {
+  let best = [];
+  for (const n of wb.SheetNames) {
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: true, defval: "", blankrows: false });
+    if (rows.length > best.length) best = rows;
+  }
+  return best.map(r => r.map(c => c instanceof Date ? ymd(new Date(c.getTime() + 12 * 3600e3)) : typeof c === "number" ? String(c) : String(c ?? "").replace(/\s+/g, " ").trim()))
+    .filter(r => r.some(c => c !== ""));
+}
+async function readFileRows(file, password) {
+  const buf = await readBuf(file), b = new Uint8Array(buf.slice(0, 8));
+  const isPdf = b[0] === 0x25 && b[1] === 0x50 && b[2] === 0x44 && b[3] === 0x46;              // %PDF
+  const isZip = b[0] === 0x50 && b[1] === 0x4b;                                                 // .xlsx
+  const isOle = b[0] === 0xd0 && b[1] === 0xcf && b[2] === 0x11 && b[3] === 0xe0;               // classic .xls
+  if (isPdf) { const rows = await readPdf(buf, password); return { rows, kind: "PDF", text: PDF_TEXT }; }
+  if (isZip || isOle) {
+    await loadScript("vendor/xlsx.full.min.js");
+    return { rows: sheetRows(XLSX.read(new Uint8Array(buf), { type: "array", cellDates: true })), kind: "Excel" };
+  }
+  const text = decodeText(buf);
+  if (/^\s*</.test(text)) {   // an "xls" that is really an HTML table or Excel 2003 XML
+    await loadScript("vendor/xlsx.full.min.js");
+    // raw: keep "58.400,00" and "02.09.2026" as text; our own parsers know they're European
+    return { rows: sheetRows(XLSX.read(text, { type: "string", raw: true })), kind: "Excel" };
+  }
+  return { rows: parseCSV(text), kind: "CSV" };
+}
+
+const MONEY_RE = /^[-+−(]?\s?(\d{1,3}([.,'\s ]\d{3})+|\d+)[.,]\d{2}\)?-?$/;
+const CUR_SUFFIX = /\s*(MKD|ДЕН|DEN|EUR|USD|RSD|HRK|BAM|ALL|€|\$|ден)\.?$/i;
+const isMoney = s => MONEY_RE.test(String(s).trim().replace(CUR_SUFFIX, ""));
+const DATE_TOKEN = /^(\d{1,2}[./-]\d{1,2}[./-]\d{2,4}|\d{4}[./-]\d{1,2}[./-]\d{1,2})\.?/;
+let PDF_TEXT = "";
+async function readPdf(buf, password) {
+  await loadScript("vendor/pdf.min.js");
+  const lib = window.pdfjsLib;
+  lib.GlobalWorkerOptions.workerSrc = new URL("vendor/pdf.worker.min.js", document.baseURI).href;
+  const doc = await lib.getDocument({ data: new Uint8Array(buf), password, isEvalSupported: false }).promise;
+  const lines = [];
+  for (let n = 1; n <= doc.numPages; n++) {
+    const tc = await (await doc.getPage(n)).getTextContent();
+    const items = tc.items.filter(i => i.str && i.str.trim()).map(i => ({ x: i.transform[4], y: i.transform[5], w: i.width, h: Math.abs(i.transform[3]) || 8, s: i.str }));
+    items.sort((a, b) => b.y - a.y || a.x - b.x);
+    let cur = null;
+    for (const it of items) { if (!cur || Math.abs(cur.y - it.y) > Math.max(2, it.h * 0.45)) { cur = { page: n, y: it.y, items: [] }; lines.push(cur); } cur.items.push(it); }
+  }
+  if (!lines.length) throw Object.assign(new Error("This PDF has no text in it (it's probably a scan), so it can't be read. Try the .xls export instead."), { friendly: true });
+  // Merge each line's text pieces into cells, splitting where there's a visible gap.
+  for (const l of lines) {
+    l.items.sort((a, b) => a.x - b.x);
+    const cells = [];
+    for (const it of l.items) {
+      const last = cells[cells.length - 1], gap = last ? it.x - last.x1 : 99;
+      if (last && gap < Math.max(4, it.h * 0.8)) { last.text += (gap > it.h * 0.12 ? " " : "") + it.s; last.x1 = it.x + it.w; }
+      else cells.push({ x0: it.x, x1: it.x + it.w, text: it.s });
+    }
+    for (const c of cells) c.text = c.text.replace(/\s+/g, " ").trim();
+    // "15.09.2026 PLATA" in one piece → split the date off
+    const m = cells[0] && cells[0].text.match(DATE_TOKEN);
+    if (m && cells[0].text.length > m[0].length + 1) { const rest = cells[0].text.slice(m[0].length).trim(); cells[0].text = m[0]; cells.splice(1, 0, { x0: cells[0].x0 + 1, x1: cells[0].x1, text: rest }); }
+    l.cells = cells.filter(c => c.text);
+  }
+  PDF_TEXT = lines.slice(0, 80).map(l => l.cells.map(c => c.text).join(" ")).join("\n");
+  const isTx = l => l.cells.length >= 2 && DATE_TOKEN.test(l.cells[0].text) && l.cells.some(c => isMoney(c.text));
+  const hdr = lines.find(l => l.cells.length >= 3 && l.cells.some(c => HDR.date.test(c.text)) && l.cells.some(c => HDR.desc.test(c.text) || HDR.amount.test(c.text) || HDR.debit.test(c.text) || HDR.credit.test(c.text)));
+  const txLines = lines.filter(isTx);
+  if (!txLines.length) throw Object.assign(new Error("Couldn't find any transactions in this PDF. If it's a statement, try the .xls export instead."), { friendly: true });
+  let header, rows = [];
+  if (hdr) {
+    const cols = hdr.cells.map(c => ({ name: c.text, x0: c.x0, x1: c.x1, xc: (c.x0 + c.x1) / 2 }));
+    const g = guessColumns(cols.map(c => c.name));
+    const place = c => {
+      // numbers are usually right-aligned under their heading, text left-aligned
+      let best = 0, bestD = Infinity;
+      cols.forEach((col, i) => {
+        const d = isMoney(c.text) ? Math.min(Math.abs(c.x1 - col.x1), Math.abs((c.x0 + c.x1) / 2 - col.xc)) : Math.min(Math.abs(c.x0 - col.x0), Math.abs((c.x0 + c.x1) / 2 - col.xc));
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      return best;
+    };
+    header = cols.map(c => c.name);
+    const descCol = g.desc >= 0 ? g.desc : 1;
+    const sameAsHeader = l => l === hdr || (l.cells.length >= 3 && l.cells.map(c => c.text).join("|") === hdr.cells.map(c => c.text).join("|"));
+    const TOTALS = /вкупно|total|saldo|салдо|состојба|стање|stanje|promet|промет|почетна|крајна|pocetn|krajn|opening|closing|страна|strana|page \d/i;
+    const byTx = new Map();
+    for (const l of txLines) { const row = header.map(() => ""); for (const c of l.cells) { const i = place(c); row[i] = row[i] ? row[i] + " " + c.text : c.text; } byTx.set(l, { row, extra: [] }); rows.push(row); }
+    // Wrapped descriptions: a text-only line belongs to the closest transaction on its page
+    // (banks put the date on the first line, the last line, or vertically centred).
+    for (const l of lines) {
+      if (byTx.has(l) || sameAsHeader(l) || l.cells.some(c => isMoney(c.text)) || l.cells.some(c => TOTALS.test(c.text))) continue;
+      let best = null, bestD = Infinity;
+      for (const t of txLines) if (t.page === l.page) { const d = Math.abs(t.y - l.y); if (d < bestD) { bestD = d; best = t; } }
+      const lh = best ? Math.max(8, ...best.items.map(i => i.h)) : 10;
+      if (best && bestD <= 2.4 * lh) byTx.get(best).extra.push(l);
+    }
+    for (const [t, { row, extra }] of byTx) {
+      if (!extra.length) continue;
+      const parts = [...extra, t].sort((a, b) => b.y - a.y).map(l => l === t ? row[descCol] : l.cells.map(c => c.text).join(" "));
+      row[descCol] = parts.filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+    }
+  } else {
+    let maxN = 0;
+    for (const l of txLines) {
+      const nums = l.cells.slice(1).filter(c => isMoney(c.text)).map(c => c.text), text = l.cells.slice(1).filter(c => !isMoney(c.text)).map(c => c.text).join(" ");
+      maxN = Math.max(maxN, nums.length); rows.push([l.cells[0].text, text, ...nums]);
+    }
+    header = ["Date", "Description", ...Array.from({ length: maxN }, (_, i) => i === 0 ? "Amount" : i === maxN - 1 && maxN > 1 ? "Balance" : "Amount " + (i + 1))];
+  }
+  return [header, ...rows];
+}
+
 let IMP = null;
 function importDlg() {
   const form = openDlg(`<h3>Import transactions</h3>
-    <p>Download a CSV of transactions from your bank's website, then choose it here.${SERVER ? "" : " Nothing leaves this browser."}</p>
-    <label class="dropzone" id="dz"><b>Choose a CSV file</b> or drop it here<input type="file" id="csvfile" accept=".csv,.txt,text/csv"></label>
+    <p>Download your transactions or statement from your bank's website, then choose the file here.${SERVER ? "" : " Nothing leaves this browser."}</p>
+    <label class="dropzone" id="dz"><b>Choose a CSV, Excel (.xls, .xlsx) or PDF file</b> or drop it here<input type="file" id="csvfile" accept=".csv,.txt,.tsv,.xls,.xlsx,.htm,.html,.pdf,text/csv,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
     <div id="impbody"></div>
     <div class="dlg-foot"><span class="sp"></span><button type="button" class="btn" data-close>Cancel</button><button class="btn brand" id="impgo" disabled>Import</button></div>`, () => doImport(), "wide");
   const dz = $("#dz", form);
-  const take = file => { const r = new FileReader(); r.onload = () => setupImport(r.result, file.name); r.readAsText(file); };
+  const take = async (file, password) => {
+    const body = $("#impbody");
+    body.innerHTML = `<p class="muted">Reading ${esc(file.name)}…</p>`; $("#impgo").disabled = true;
+    try {
+      const { rows, kind, text } = await readFileRows(file, password);
+      setupImport(rows, file.name, kind, text);
+    } catch (e) {
+      if (e && e.name === "PasswordException") {
+        body.innerHTML = `<p>${password ? "That password didn't work. " : ""}This PDF is protected with a password. Banks often use something like your date of birth or ID number.</p>
+          <div class="sfform"><input class="inp" type="password" id="pdfpw" placeholder="PDF password" autocomplete="off"><button type="button" class="btn" id="pdfgo">Open</button></div>`;
+        const go = () => take(file, $("#pdfpw").value);
+        $("#pdfgo").addEventListener("click", go); $("#pdfpw").addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); go(); } });
+        $("#pdfpw").focus(); return;
+      }
+      body.innerHTML = `<p class="bad">${esc(e && e.friendly ? e.message : "Couldn't read that file: " + ((e && e.message) || e))}</p>`;
+    }
+  };
   $("#csvfile", form).addEventListener("change", e => e.target.files[0] && take(e.target.files[0]));
   dz.addEventListener("dragover", e => { e.preventDefault(); dz.classList.add("drag"); });
   dz.addEventListener("dragleave", () => dz.classList.remove("drag"));
   dz.addEventListener("drop", e => { e.preventDefault(); dz.classList.remove("drag"); const f = e.dataTransfer.files[0]; if (f) take(f); });
 }
-function setupImport(text, fname) {
-  const rows = parseCSV(text);
-  if (rows.length < 2) { $("#impbody").innerHTML = `<p class="bad">That file has no rows we can read. Check that it's a CSV export of transactions.</p>`; return; }
-  const hi = rows.slice(0, 12).findIndex(r => r.some(c => /date/i.test(c)) && r.length >= 3);
+function setupImport(rows, fname, kind = "CSV", extraText = "") {
+  rows = rows.map(r => r.map(c => String(c ?? "").trim()));
+  if (rows.length < 2) { $("#impbody").innerHTML = `<p class="bad">That file has no rows we can read. Check that it's a list of transactions.</p>`; return; }
+  const hi = rows.slice(0, 40).findIndex(r => r.some(c => HDR.date.test(c)) && r.filter(Boolean).length >= 3);
   let header, data;
-  if (hi >= 0) { header = rows[hi]; data = rows.slice(hi + 1); } else { header = rows[0].map((_, i) => "Column " + (i + 1)); data = rows; }
-  data = data.filter(r => r.length >= Math.min(3, header.length));
+  if (hi >= 0) { header = rows[hi].map((h, i) => h || "Column " + (i + 1)); data = rows.slice(hi + 1); } else { header = rows[0].map((_, i) => "Column " + (i + 1)); data = rows; }
+  data = data.filter(r => r.filter(Boolean).length >= 2);
+  const width = Math.max(header.length, ...data.slice(0, 50).map(r => r.length));
+  while (header.length < width) header.push("Column " + (header.length + 1));
   const g = guessColumns(header);
-  if (g.date < 0) g.date = header.findIndex((_, i) => data.slice(0, 5).every(r => parseDate(r[i], "mdy")));
-  if (g.amount < 0 && g.debit < 0) g.amount = header.findIndex((_, i) => i !== g.date && data.slice(0, 5).every(r => parseAmount(r[i]) != null));
-  if (g.desc < 0) g.desc = header.findIndex((_, i) => i !== g.date && i !== g.amount && data.slice(0, 5).some(r => /[a-z]{3}/i.test(r[i] || "")));
+  const sample = data.slice(0, 30);
+  const dateLike = i => sample.filter(r => parseDate(r[i], "dmy") || parseDate(r[i], "mdy")).length >= Math.max(1, sample.length * 0.6);
+  if (g.date < 0 || !dateLike(g.date)) { const i = header.findIndex((_, i) => dateLike(i)); if (i >= 0) g.date = i; }
+  if (g.amount < 0 && g.debit < 0 && g.credit < 0) g.amount = header.findIndex((h, i) => i !== g.date && !HDR.balance.test(h) && sample.filter(r => parseAmount(r[i]) != null).length >= sample.length * 0.8);
+  if (g.desc < 0) g.desc = header.findIndex((_, i) => i !== g.date && i !== g.amount && sample.some(r => /\p{L}{3}/u.test(r[i] || "")));
   const order = detectDateOrder(data.slice(0, 40).map(r => r[g.date]));
   const amts = g.amount >= 0 ? data.map(r => parseAmount(r[g.amount])).filter(v => v != null) : [];
   const mostlyPos = amts.length > 3 && amts.filter(v => v > 0).length / amts.length > 0.85;
-  const guessName = fname.replace(/\.(csv|txt)$/i, "").replace(/[_-]+/g, " ").replace(/\d{4,}/g, "").trim().slice(0, 40) || "Imported account";
-  const guessType = /card|visa|amex|mastercard|credit/i.test(fname) || mostlyPos ? "credit" : "checking";
+  const guessName = fname.replace(/\.(csv|txt|tsv|xlsx?|pdf|html?)$/i, "").replace(/[_-]+/g, " ").replace(/\d{4,}/g, "").trim().slice(0, 40) || "Imported account";
+  const guessType = /card|visa|amex|mastercard|credit|kartic|картич/i.test(fname) || mostlyPos ? "credit" : "checking";
+  const blob = rows.slice(0, 60).flat().join(" ") + " " + extraText;
+  const mkd = S.settings.currency !== "MKD" && /\bMKD\b|\bден\b|денар|\bdenar/i.test(blob);
   IMP = { header, data };
-  const opt = (sel, none) => (none ? `<option value="-1">— none —</option>` : "") + header.map((h, i) => `<option value="${i}" ${i === sel ? "selected" : ""}>${esc(h || "Column " + (i + 1))}</option>`).join("");
-  const real = S.accounts.filter(a => !S.settings.demo);
+  const opt = (sel, none) => (none ? `<option value="-1">— none —</option>` : "") + header.map((h, i) => `<option value="${i}" ${i === sel ? "selected" : ""}>${esc(h)}</option>`).join("");
+  const real = S.settings.demo ? [] : S.accounts;
   $("#impbody").innerHTML = `
+    <p class="small muted">Read as ${esc(kind)} · ${data.length.toLocaleString()} rows. Check the columns below, then the preview.</p>
     <div class="fields">
       <label class="field"><span>Into account</span><select class="inp" id="i-acct"><option value="__new">New account…</option>${real.map(a => `<option value="${a.id}">${esc(a.name)}</option>`).join("")}</select></label>
       <label class="field" id="i-newwrap"><span>New account name</span><input class="inp" id="i-newname" value="${esc(titleCase(guessName.toLowerCase()))}"></label>
       <label class="field" id="i-typewrap"><span>Account type</span><select class="inp" id="i-type">${Object.entries(ACCT_TYPES).map(([k, v]) => `<option value="${k}" ${k === guessType ? "selected" : ""}>${v}</option>`).join("")}</select></label>
       <label class="field"><span>Current balance (optional)</span><input class="inp num" id="i-bal" type="number" step="0.01" inputmode="decimal" placeholder="From your bank's site"></label>
       <label class="field"><span>Date column</span><select class="inp" id="i-date">${opt(g.date)}</select></label>
-      <label class="field"><span>Date format</span><select class="inp" id="i-order"><option value="mdy" ${order === "mdy" ? "selected" : ""}>Month/Day/Year</option><option value="dmy" ${order === "dmy" ? "selected" : ""}>Day/Month/Year</option><option value="ymd" ${order === "ymd" ? "selected" : ""}>Year-Month-Day</option></select></label>
+      <label class="field"><span>Date format</span><select class="inp" id="i-order"><option value="dmy" ${order === "dmy" ? "selected" : ""}>Day/Month/Year</option><option value="mdy" ${order === "mdy" ? "selected" : ""}>Month/Day/Year</option><option value="ymd" ${order === "ymd" ? "selected" : ""}>Year-Month-Day</option></select></label>
       <label class="field"><span>Description column</span><select class="inp" id="i-desc">${opt(g.desc)}</select></label>
       <label class="field"><span>Category column</span><select class="inp" id="i-cat">${opt(g.category, true)}</select></label>
       <label class="field"><span>Amount column</span><select class="inp" id="i-amt">${opt(g.amount, true)}</select></label>
       <label class="field"><span>Or: money out / money in</span><span class="pair"><select class="inp" id="i-deb" aria-label="Money out column">${opt(g.debit, true)}</select><select class="inp" id="i-cred" aria-label="Money in column">${opt(g.credit, true)}</select></span></label>
       ${S.properties.length && !S.settings.demo ? `<label class="field"><span>Property (optional)</span><select class="inp" id="i-prop">${propOptions("")}</select></label>` : ""}
       <label class="check full"><input type="checkbox" id="i-flip" ${mostlyPos ? "checked" : ""}> Purchases are positive numbers in this file (common for credit cards)</label>
+      ${mkd ? `<label class="check full"><input type="checkbox" id="i-mkd" checked> Show amounts in Macedonian denars (MKD)</label>` : ""}
     </div>
     <div class="tbl-wrap preview"><table id="i-prev"></table></div>`;
   const body = $("#impbody");
   const sync = () => {
     const isNew = $("#i-acct").value === "__new";
     $("#i-newwrap").hidden = !isNew; $("#i-typewrap").hidden = !isNew;
-    const rows = importRows(), ok = rows.filter(r => r.ok);
-    $("#i-prev").innerHTML = `<thead><tr><th>Date</th><th>Merchant</th><th>Category</th><th>Amount</th></tr></thead><tbody>${rows.slice(0, 6).map(r => r.ok
-      ? `<tr><td>${esc(r.date)}</td><td>${esc(cleanMerchant(r.desc).slice(0, 30))}</td><td>${esc(r.category)}</td><td>${esc(signed(r.amount))}</td></tr>`
-      : `<tr><td colspan="4" class="bad" style="text-align:left">Can't read row: ${esc(r.raw.join(", ").slice(0, 60))}</td></tr>`).join("")}</tbody>
-      <caption>${ok.length.toLocaleString()} of ${rows.length.toLocaleString()} rows ready · showing the first 6</caption>`;
+    const rows = importRows(), ok = rows.filter(r => r.ok), bad = rows.filter(r => !r.ok && !r.skip), skipped = rows.length - ok.length - bad.length;
+    const show = ok.slice(0, 6).concat(bad.slice(0, 2));
+    $("#i-prev").innerHTML = `<thead><tr><th>Date</th><th>Merchant</th><th>Category</th><th>Amount</th></tr></thead><tbody>${show.map(r => r.ok
+      ? `<tr><td>${esc(r.date)}</td><td>${esc(cleanMerchant(r.desc).slice(0, 34))}</td><td>${esc(r.category)}</td><td>${esc(signed(r.amount))}</td></tr>`
+      : `<tr><td colspan="4" class="bad" style="text-align:left;white-space:normal">Can't read row: ${esc(r.raw.filter(Boolean).join(" · ").slice(0, 90))}</td></tr>`).join("")}</tbody>
+      <caption>${ok.length.toLocaleString()} transactions ready${bad.length ? ` · ${bad.length} rows with a date but no readable amount` : ""}${skipped ? ` · ${skipped} other rows (headings, totals) left out` : ""}</caption>`;
     $("#impgo").disabled = !ok.length;
     $("#impgo").textContent = ok.length ? `Import ${ok.length.toLocaleString()} transactions` : "Import";
   };
@@ -380,14 +544,17 @@ function importRows() {
   const v = id => +$(id).value, order = $("#i-order").value, flip = $("#i-flip").checked;
   const di = v("#i-date"), de = v("#i-desc"), ai = v("#i-amt"), bi = v("#i-deb"), ci = v("#i-cred"), ki = v("#i-cat");
   const catByLower = {}; for (const c of S.categories) catByLower[c.name.toLowerCase()] = c.name;
+  const num = x => parseAmount(String(x || "").replace(CUR_SUFFIX, ""));
   return IMP.data.map(r => {
-    const date = parseDate(r[di], order), desc = (r[de] || "").replace(/\s+/g, " ").trim();
+    const date = parseDate(r[di], order), desc = String(r[de] || "").replace(/\s+/g, " ").trim();
+    if (!date) return { ok: false, skip: true, raw: r };
     let amount = null;
-    if (ai >= 0) { amount = parseAmount(r[ai]); if (amount != null && flip) amount = -amount; }
-    else if (bi >= 0 || ci >= 0) { if (r[bi] || r[ci]) amount = Math.abs(parseAmount(r[ci]) || 0) - Math.abs(parseAmount(r[bi]) || 0); }
-    if (!date || amount == null || !desc) return { ok: false, raw: r };
+    if (ai >= 0) { amount = num(r[ai]); if (amount != null && flip) amount = -amount; }
+    else if (bi >= 0 || ci >= 0) { const o = bi >= 0 ? num(r[bi]) : null, i = ci >= 0 ? num(r[ci]) : null; if (o != null || i != null) amount = Math.abs(i || 0) - Math.abs(o || 0); }
+    if (amount == null || !desc) return { ok: false, raw: r };
+    if (Math.abs(amount) < 0.005) return { ok: false, skip: true, raw: r };
     amount = round2(amount);
-    const given = ki >= 0 ? catByLower[(r[ki] || "").toLowerCase()] : null;
+    const given = ki >= 0 ? catByLower[String(r[ki] || "").toLowerCase()] : null;
     return { ok: true, date, desc, amount, category: given || categorize(desc, amount) };
   });
 }
@@ -397,7 +564,9 @@ function doImport() {
   if (!rows.length) return false;
   const acctSel = $("#i-acct").value, balRaw = $("#i-bal").value, prop = $("#i-prop") ? $("#i-prop").value : "";
   const newName = $("#i-newname").value.trim() || "Imported account", newType = $("#i-type").value;
+  const toMKD = $("#i-mkd") && $("#i-mkd").checked;
   leaveDemo();
+  if (toMKD) { S.settings.currency = "MKD"; setFormatters(); }
   let acct = acctSel !== "__new" ? AM[acctSel] : null;
   if (!acct) { acct = { id: uid(), name: newName, type: newType, balance: 0, source: "csv" }; S.accounts.push(acct); }
   const seen = {}, keyOf = t => t.date + "|" + t.amount.toFixed(2) + "|" + merchantKey(t.desc);
